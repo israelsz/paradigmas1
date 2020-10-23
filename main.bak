@@ -1,0 +1,4 @@
+#lang scheme
+(define cuadrado(lambda (x) (* x x)))
+(cuadrado 6)
+(define lista (list 1 2 3 4))
