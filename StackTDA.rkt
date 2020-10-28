@@ -1,4 +1,5 @@
 #lang scheme
+(provide (all-defined-out))
 
 ;Implementacion del TDA stack
 
@@ -12,9 +13,10 @@
 ;dom: ----
 ;rec: lista
 (define (crearStack)
-  (list(list)(list)(list)(list)
+  (list(list)(list)(list(list)(list))(list)
        )
   )
+
 ;Pertenencia
 
 ;Selectores
@@ -50,6 +52,21 @@
   (list-ref lista 3)
   )
 
+;descripción: Funcion que retorna la lista con Nombres de usuarios registrados.
+;dom: list
+;rec: list
+(define(selecListaUsuariosRegistrados stack)
+  (list-ref(list-ref stack 2)0)
+  )
+
+;descripción: Funcion que retorna la lista con Contraseñas de los usuarios registrados.
+;dom: list
+;rec: list
+(define(selecListaPasswords stack)
+  (list-ref(list-ref stack 2)1)
+  )
+
+
 ;Modificadores
 
 ;descripción: Agrega una pregunta al stack
@@ -68,6 +85,13 @@
        )
   )
 
+;descripción: Agrega un usuario y su contraseña al stack
+;dom: list X string x string
+;rec: list
+(define(addUserPassword stack nombre password)
+  (list(selecListaPreguntas stack)(selecListaRespuestas stack)(list(modificarPos2_0 stack nombre)(modificarPos2_1 stack password))(selecListaUsuariosActivos stack)
+       )
+  )
 
 ;Otras Operaciones
 
@@ -77,11 +101,6 @@
 ;SER EMPLEADAS INDEPENDIENTEMENTE DE LA EXISTENCIA DEL TDA STACK, POR LO QUE NO EXISTE ACOPLAMIENTO CON EL TDA.
 ;POR OTRO LADO, EL TDA SEGUN LA IMPLEMENTACION REALIZADA A CONTINUACION, ESTA ACOPLADO A ESTAS FUNCIONES.
 
-;descripción: Agrega un elemento al final de una lista
-;dom: list X elemento
-;rec: list
-(define (agregarLista lista x)
-  (append lista (list x)))
 
 ;descripción: Agrega un elemento a la posicion de Preguntas del stack
 ;dom: list X elemento
@@ -96,5 +115,21 @@
 ;rec: list
 (define (modificarPos1 stack x)
   (append(selecListaRespuestas stack)(list x)
+         )
+  )
+
+;descripción: Agrega un elemento a la posicion de usuarios del stack
+;dom: list X elemento
+;rec: list
+(define(modificarPos2_0 stack nombre)
+  (append(selecListaUsuariosRegistrados stack)(list nombre)
+         )
+  )
+
+;descripción: Agrega un elemento a la posicion de contraseñas del stack
+;dom: list X elemento
+;rec: list
+(define(modificarPos2_1 stack password)
+  (append(selecListaPasswords stack)(list password)
          )
   )
