@@ -2,10 +2,13 @@
 (provide (all-defined-out))
 
 ;Implementacion del TDA stack
+;El tda Stack es la base para este programa
 
 ;Representacion
 ;(list X list X list X list)
 ;(list preguntas respuestas usuarios nombreUsuarioActivo)
+
+
 
 ;Constructores
 
@@ -13,10 +16,8 @@
 ;dom: ----
 ;rec: lista
 (define (crearStack)
-  (list(list)(list)(list(list)(list))(list)
-       )
+  (list (list) (list) (list) (list))
   )
-
 ;Pertenencia
 
 ;Selectores
@@ -85,19 +86,11 @@
        )
   )
 
-;descripción: Agrega un usuario al stack
-;dom: list X elemento
+;descripción: Agrega un usuario y su contraseña al stack
+;dom: list X string x string
 ;rec: list
-(define (addUser stack nombre)
-  (list(selecListaPreguntas stack)(selecListaRespuestas stack)(list(modificarPos2_0 stack nombre)(selecListaPasswords stack))(selecListaUsuariosActivos stack)
-       )
-  )
-
-;descripción: Agrega una contraseña al stack
-;dom: list X elemento
-;rec: list
-(define (addPassword stack password)
-  (list(selecListaPreguntas stack)(selecListaRespuestas stack)(list(selecListaUsuariosRegistrados stack)(modificarPos2_1 stack password))(selecListaUsuariosActivos stack)
+(define(addUserPassword stack nombre password)
+  (list(selecListaPreguntas stack)(selecListaRespuestas stack)(list(modificarPos2_0 stack nombre)(modificarPos2_1 stack password))(selecListaUsuariosActivos stack)
        )
   )
 

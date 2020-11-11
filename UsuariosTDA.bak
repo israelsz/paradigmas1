@@ -1,1 +1,22 @@
 #lang scheme
+(provide (all-defined-out))
+
+;Implementacion del TDA usuarios
+
+;Representacion
+;((string X string) (string))
+;(list usuario password (list preguntas))
+
+;Constructor
+;descripción: Permite crear un usuario, junto a su contraseña correspondiente
+;dom: string X string
+;rec: lista
+(define crearUsuario
+  (lambda (usuario password)
+    (if (and (string? usuario) (string? password))
+        (list usuario password (list))
+        (raise "Solo se permite strings para el usuario y la password")
+        )
+    )
+  )
+ 

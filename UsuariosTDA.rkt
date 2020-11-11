@@ -1,11 +1,21 @@
 #lang scheme
-(require "StackTDA.rkt")
+(provide (all-defined-out))
 
+;Implementacion del TDA usuarios
 
-;Register
-;descripción: Funcion que añade a un nuevo usuario al stack.
-;dom: stack x string x string
-;rec: list
-(define (register stack usuario password)
-  (addUserPassword stack usuario password)
+;Representacion
+;((string X string) (string))
+;(list usuario password (list preguntas))
+
+;Constructor
+;descripción: Permite crear un usuario, junto a su contraseña correspondiente
+;dom: string X string
+;rec: lista
+(define crearUsuario
+  (lambda (username password)
+    (if (and (string? username) (string? password))
+        (list username password (list))
+        (raise "Solo se permite strings para el username y la password")
+        )
+    )
   )
