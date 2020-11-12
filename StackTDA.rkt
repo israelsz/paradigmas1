@@ -105,6 +105,41 @@
 
 ;Otras Operaciones
 
+;descripción: Permite saber si un usuario ya se encuentra dentro del stack de usuarios.
+;dom: lista X string
+;rec: booleano
+;tipo de recursión: natural
+(define yaEstaRegistrado
+  (lambda (listaUsuarios username)
+    (if (null? listaUsuarios);Caso base alcanzado al llegar al final de la lista o si la lista se encuentra vacia
+        #f ;No esta registrado
+        (if (equal? (car(car listaUsuarios)) username) ;Segundo caso base, compara el nombre del usuario de la posicion del stack con username
+            #t ; Ya se encuentra registrado
+            (yaEstaRegistrado (cdr listaUsuarios) username) ;Descomposicion recursiva, se pasara al siguiente usuario
+            )
+        )
+    )
+  )
+
+;descripción: Permite comparar si la password ingresada es igual a la del usuario
+;dom: lista X string
+;rec: booleano
+;tipo de recursión: natural
+(define verificarUserPassword
+  (lambda (listaUsuarios username password)
+    (if (null? listaUsuarios);Caso base alcanzado al llegar al final de la lista o si la lista se encuentra vacia
+        #f ;El usuario no existe
+        (if (equal? (car(car listaUsuarios)) username) ;Segundo caso base, compara la password del usuario de la posicion del stack con username
+            (if (equal? (car(cdr(car listaUsuarios))) password); Si se encuentra el username, se verificara si coincide su password
+                #t ;El usuario existe y su password es correcta
+                #f ;El usuario existe, pero la password no es correcta
+            )
+            (verificarUserPassword (cdr listaUsuarios) username) ;Descomposicion recursiva, se pasara a revisar al siguiente usuario
+            )
+        )
+    )
+  )
+            
 
 
 
