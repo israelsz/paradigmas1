@@ -23,7 +23,6 @@
 ;Selectores
 
 
-
 ;descripción: Funcion que retorna la lista con preguntas del stack, para ello se solicita el stack
 ;dom: list
 ;rec: list
@@ -61,47 +60,17 @@
     )
   )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;descripción: Funcion que retorna la lista con Nombres de usuarios registrados.
-;dom: list
-;rec: list
-(define(selecListaUsuariosRegistrados stack)
-  (list-ref(list-ref stack 2)0)
-  )
 
-;descripción: Funcion que retorna la lista con Contraseñas de los usuarios registrados.
+;descripción: Funcion que retorna el username del usuario que se encuentra loggeado.
 ;dom: list
-;rec: list
-(define(selecListaPasswords stack)
-  (list-ref(list-ref stack 2)1)
+;rec: string
+(define stackGetLoggedUser
+  (lambda (stack)
+    (list-ref (list-ref stack 3)0)
+    )
   )
 
 
-;Modificadores
-
-;descripción: Agrega una pregunta al stack
-;dom: list X elemento
-;rec: list
-;(define (addQuestion stack x)
-;  (list(modificarPos0 stack x)(selecListaRespuestas stack)(selecListaUsuarios stack)(selecListaUsuariosActivos stack)
-;       )
-;  )
-
-;descripción: Agrega una respuesta al stack
-;dom: list X elemento
-;rec: list
-;(define (addAnswer stack x)
-;  (list(selecListaPreguntas stack)(modificarPos1 stack x)(selecListaUsuarios stack)(selecListaUsuariosActivos stack)
-;       )
-;  )
-
-;descripción: Agrega un usuario y su contraseña al stack
-;dom: list X string x string
-;rec: list
-;(define(addUserPassword stack nombre password)
-;  (list(selecListaPreguntas stack)(selecListaRespuestas stack)(list(modificarPos2_0 stack nombre)(modificarPos2_1 stack password))(selecListaUsuariosActivos stack)
-;       )
-;  )
 
 ;Otras Operaciones
 
@@ -140,44 +109,16 @@
     )
   )
             
+;descripción: Permite saber si un usuario se encuentra conectado o no
+;dom: lista
+;rec: booleano
+(define isUserLoggedIn?
+  (lambda (stackUsuariosActivos)
+    (if (null? stackUsuariosActivos)
+        #f ;Si el stack de usuarios activos esta vacío, el usuario no esta loggeado
+        #t ;Si tiene un elemento, se encuentra loggeado
+        )
+    )
+  )
 
 
-
-
-;LAS SIGUIENTES FUNCIONES SON COMPLEMENTARIAS/AUXILIARES AL TDA. NO FORMAN PARTE DEL TDA STACK, PERO
-;EL TDA FECHA LAS EMPLEA PARA PODER REALIZAR SU TRABAJO. ESTAS FUNCIONES DE IGUAL FORMA PUEDEN
-;SER EMPLEADAS INDEPENDIENTEMENTE DE LA EXISTENCIA DEL TDA STACK, POR LO QUE NO EXISTE ACOPLAMIENTO CON EL TDA.
-;POR OTRO LADO, EL TDA SEGUN LA IMPLEMENTACION REALIZADA A CONTINUACION, ESTA ACOPLADO A ESTAS FUNCIONES.
-
-
-;descripción: Agrega un elemento a la posicion de Preguntas del stack
-;dom: list X elemento
-;rec: list
-;(define (modificarPos0 stack x)
-;  (append(selecListaPreguntas stack)(list x)
-;         )
-;  )
-
-;descripción: Agrega un elemento a la posicion de Respuestas del stack
-;dom: list X elemento
-;rec: list
-;(define (modificarPos1 stack x)
-;  (append(selecListaRespuestas stack)(list x)
-;         )
-;  )
-
-;descripción: Agrega un elemento a la posicion de usuarios del stack
-;dom: list X elemento
-;rec: list
-;(define(modificarPos2_0 stack nombre)
-;  (append(selecListaUsuariosRegistrados stack)(list nombre)
-;         )
-;  )
-
-;descripción: Agrega un elemento a la posicion de contraseñas del stack
-;dom: list X elemento
-;rec: list
-;(define(modificarPos2_1 stack password)
-;  (append(selecListaPasswords stack)(list password)
-;         )
-;  )

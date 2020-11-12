@@ -1,6 +1,8 @@
 #lang scheme
 (require "StackTDA.rkt")
 (require "UsuariosTDA.rkt")
+(require "preguntaTDA.rkt")
+(require "fechaTDA.rkt")
 
 
 ;descripción: Permite crear un usuario, junto a su contraseña correspondiente
@@ -36,9 +38,15 @@
 ;rec: stack
 (define ask
   (lambda (stack)
-    (lambda (date)
-      (lambda (pregunta
-      (list-ref stack date)
+    (lambda (fecha)
+      (lambda (pregunta . labels)
+        ;En primer lugar se verifica que el usuario se encuentre logueado
+        (if (equal? (isUserLoggedIn? (stackGetActiveUsers stack)) #f)
+            stack ;si no esta loggeado, se retorna el stack sin cambios
+            ;En caso de encontrarse loggeado, se crea la nueva pregunta y se deslogea al usuario
+            (list (append (stackGetQuestions stack) (list(crearPregunta pregunta (stackGetLoggedUser stack) fecha labels (stackGetQuestions stack)))) (stackGetAnswers stack) (list(addQuestionToUser (stackGetUsers stack) (stackGetLoggedUser stack) stack)) (list))
+            )
+        )
       )
     )
   )
