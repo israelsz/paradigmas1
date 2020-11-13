@@ -3,6 +3,7 @@
 (require "UsuariosTDA.rkt")
 (require "preguntaTDA.rkt")
 (require "fechaTDA.rkt")
+(require "respuestaTDA.rkt")
 
 
 ;descripción: Permite crear un usuario, junto a su contraseña correspondiente
@@ -74,4 +75,23 @@
       )
     )
   )
-                
+
+;descripción: Permite a un usuario logueado responder una pregunta
+;dom: stack X date X entero X string X (list string)
+;rec: stack
+(define answer
+  (lambda (stack)
+    (lambda (fecha)
+      (lambda (idPreguntaQueResponde)
+        (lambda (respuesta . labels)
+          ;En primer lugar se verifica que el usuario se encuentre logueado
+          (if (equal? (isUserLoggedIn? (stackGetActiveUsers stack)) #f)
+              stack ;si no esta loggeado, se retorna el stack sin cambios
+              ;En caso de estar loggeado, registra la pregunta
+              (list (stackGetQuestions stack) (append (stackGetAnswers stack) (list(crearRespuesta respuesta idPreguntaQueResponde (stackGetLoggedUser stack) fecha labels (stackGetAnswers stack)))) (stackGetUsers stack) (list))
+              )
+          )
+        )
+      )
+    )
+  )

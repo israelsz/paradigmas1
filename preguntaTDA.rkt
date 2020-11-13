@@ -10,7 +10,7 @@
 
 ;CONSTRUCTOR
 ;descripción: Permite crear una pregunta
-;dom: string X entero X string X date x labels
+;dom: string X entero X string X date x labels x lista
 ;rec: lista
 (define crearPregunta
   (lambda (pregunta autor date labels stackPreguntas)
