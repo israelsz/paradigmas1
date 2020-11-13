@@ -44,9 +44,34 @@
         (if (equal? (isUserLoggedIn? (stackGetActiveUsers stack)) #f)
             stack ;si no esta loggeado, se retorna el stack sin cambios
             ;En caso de encontrarse loggeado, se crea la nueva pregunta y se deslogea al usuario
-            (list (append (stackGetQuestions stack) (list(crearPregunta pregunta (stackGetLoggedUser stack) fecha labels (stackGetQuestions stack)))) (stackGetAnswers stack) (list(addQuestionToUser (stackGetUsers stack) (stackGetLoggedUser stack) stack)) (list))
+            (list (append (stackGetQuestions stack) (list(crearPregunta pregunta (stackGetLoggedUser stack) fecha labels (stackGetQuestions stack)))) (stackGetAnswers stack) (addQuestionToUser (stackGetUsers stack) (stackGetLoggedUser stack) stack) (list))
             )
         )
       )
     )
   )
+
+;descripción: Permite a un usuario logueado ofrecer una recompensa por una pregunta resuelta
+;dom: stack X entero X entero
+;rec: stack
+(define reward
+  (lambda (stack)
+    (lambda (idPregunta)
+      (lambda (recompensa)
+        ;En primer lugar se verifica que el usuario se encuentre logueado
+        (if (equal? (isUserLoggedIn? (stackGetActiveUsers stack)) #f)
+            stack ;si no esta loggeado, se retorna el stack sin cambios
+            ;En caso de estar loggeado se revisara que el id y la recompensa sean enteros
+            (if (not(and (integer? idPregunta) (integer? recompensa)))
+                stack ;no son enteros, se retorna el mismo stack sin cambios
+                (if (equal? (puedeDarReputacion? (stackGetUsers stack) (stackGetLoggedUser stack) recompensa) #t)
+                    (traspasarRecompensa (stackGetUsers stack) (stackGetQuestions stack) (stackGetLoggedUser stack) idPregunta recompensa stack)
+                     stack ;no puede dar la recompensa, entonces se retorna el stack sin cambios
+                     )
+                )
+            )
+        )
+      )
+    )
+  )
+                

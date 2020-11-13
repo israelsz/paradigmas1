@@ -1,6 +1,4 @@
 #lang scheme
-(require "preguntaTDA.rkt")
-(require "StackTDA.rkt")
 (provide (all-defined-out))
 
 ;Implementacion del TDA usuarios
@@ -16,7 +14,7 @@
 (define crearUsuario
   (lambda (username password)
     (if (and (string? username) (string? password))
-        (list username password (list) 100) ;cada user empieza con 100 de reputacion
+        (list username password (list) 500) ;cada user empieza con 500 de reputacion
         (raise "Solo se permite strings para el username y la password")
         )
     )
@@ -57,23 +55,5 @@
 (define userGetReputation
   (lambda (usuario)
     (list-ref usuario 3)
-    )
-  )
-
-
-;Modificadores
-;descripción: Funcion que agrega un id de pregunta a un usuario, retorna una lista actualizada
-;dom: lista x lista x stack
-;rec: lista
-;tipo recursion: natural
-(define addQuestionToUser
-  (lambda (listaUsuarios username stack)
-    (if (null? listaUsuarios);Caso base alcanzado al llegar al final de la lista o si la lista se encuentra vacia
-        #f ;No se encontro al usuario
-        (if (equal? (car(car listaUsuarios)) username) ;Segundo caso base, compara el nombre del usuario de la posicion del stack con username
-            (list (userGetUsername (car listaUsuarios)) (userGetPassword (car listaUsuarios)) (append (userGetQuestions (car listaUsuarios)) (list (crearIdPregunta (stackGetQuestions stack)))) (userGetReputation (car listaUsuarios)));Se agrega la pregunta al usuario
-            (yaEstaRegistrado (cdr listaUsuarios) username) ;Descomposicion recursiva, se pasara al siguiente usuario
-            )
-        )
     )
   )

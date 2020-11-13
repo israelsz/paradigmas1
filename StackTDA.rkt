@@ -1,4 +1,6 @@
 #lang scheme
+(require "UsuariosTDA.rkt")
+(require "preguntaTDA.rkt")
 (provide (all-defined-out))
 
 ;Implementacion del TDA stack
@@ -103,7 +105,7 @@
                 #t ;El usuario existe y su password es correcta
                 #f ;El usuario existe, pero la password no es correcta
             )
-            (verificarUserPassword (cdr listaUsuarios) username) ;Descomposicion recursiva, se pasara a revisar al siguiente usuario
+            (verificarUserPassword (cdr listaUsuarios) username password) ;Descomposicion recursiva, se pasara a revisar al siguiente usuario
             )
         )
     )
@@ -121,4 +123,66 @@
     )
   )
 
+;descripción: Permite saber si un usuario puede dar una determinada recompensa o no
+;dom: lista X string X entero
+;rec: booleano
+(define puedeDarReputacion?
+  (lambda (stackUsuarios username recompensa)
+    (if (equal? (userGetUsername(car stackUsuarios)) username) ;Si encontramos al usuario que quiere dar reputacion
+        (if (>=(userGetReputation (car stackUsuarios)) recompensa) ;Se verifica si la reputacion del usuario es mayor a la que se quiere ofrecer
+            #t ;si tiene  mas reputacion, puede ofrecer la recompensa
+            #f ;no tiene mas reputacion que la recompensa que quiere ofrecer
+            )
+        (puedeDarReputacion? (cdr stackUsuarios) username recompensa) ;Descomposicion recursiva, se verificara al siguiente usuario
+        )
+    )
+  )
 
+;descripción: Funcion que agrega un id de pregunta a un usuario, retorna una lista actualizada
+;dom: lista x lista x stack
+;rec: lista
+(define addQuestionToUser
+  (lambda (stackUsuarios username stack)
+    (map (lambda (usuario)
+       (if (equal? (car usuario) username) ;Se verifica si es el usuario al que se le quiere agregar el id de pregunta
+           (list (userGetUsername usuario) (userGetPassword usuario) (append (userGetQuestions usuario) (list (crearIdPregunta (stackGetQuestions stack)))) (userGetReputation usuario)) ;Se le agrega el id de pregunta
+           usuario)) ;Si no lo es se mantiene el stack y se verifica la siguiente posicion
+     stackUsuarios)
+    )
+  )
+
+
+;descripción: Funcion que descuenta una recompensa a un usuario, retorna el stack de usuarios actualizado
+;dom: lista X lista X string X entero X entero
+;rec: lista
+(define descontarRecompensaUsuario
+  (lambda (stackUsuarios username recompensa)
+    (map (lambda (usuario)
+       (if (equal? (userGetUsername usuario) username) ;Se verifica si es el usuario al que se le quiere descontar la recompensa
+           (list (userGetUsername usuario) (userGetPassword usuario) (userGetQuestions usuario) (- (userGetReputation usuario) recompensa)) ;Se le descuenta la recompensa
+           usuario)) ;Si no lo es se mantiene el stack y se verifica la siguiente posicion
+     stackUsuarios)
+    )
+  )
+
+;descripción: Funcion que agrega una recompensa a la pregunta del id señalado retorna el stack de preguntas actualizado
+;dom: lista X lista X string X entero X entero
+;rec: lista
+(define agregarRecompensaPregunta
+  (lambda (stackPreguntas idPregunta recompensa)
+    (map (lambda (pregunta)
+       (if (equal? (QuestionGetId pregunta) idPregunta) ;Se verifica si es la pregunta a la que se le quiere agregar la recompensa
+           (list (QuestionGetPregunta pregunta) (QuestionGetId pregunta)(QuestionGetUser pregunta) (QuestionGetDate pregunta) (QuestionGetLabels pregunta) (QuestionGetStatus pregunta) (+(QuestionGetRecompensa pregunta) recompensa) (QuestionGetVotes pregunta)) ;Se le descuenta la recompensa
+           pregunta)) ;Si no lo es se mantiene el stack y se verifica la siguiente posicion
+     stackPreguntas)
+    )
+  )
+
+;descripción: Funcion que trapasa la determinada recompensa de un usuario a una pregunta, retorna un stack actualizado
+;dom: lista X lista X string X entero X entero
+;rec: stack
+(define traspasarRecompensa
+  (lambda (stackUsuarios stackPreguntas username idPregunta recompensa stack)
+    (list (agregarRecompensaPregunta stackPreguntas idPregunta recompensa) (stackGetAnswers stack) (descontarRecompensaUsuario stackUsuarios username recompensa) (list))
+    )
+  )
