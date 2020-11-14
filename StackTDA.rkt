@@ -1,6 +1,7 @@
 #lang scheme
 (require "UsuariosTDA.rkt")
 (require "preguntaTDA.rkt")
+(require "respuestaTDA.rkt")
 (provide (all-defined-out))
 
 ;Implementacion del TDA stack
@@ -93,7 +94,7 @@
   )
 
 ;descripción: Permite comparar si la password ingresada es igual a la del usuario
-;dom: lista X string
+;dom: lista X string X string
 ;rec: booleano
 ;tipo de recursión: natural
 (define verificarUserPassword
@@ -184,5 +185,154 @@
 (define traspasarRecompensa
   (lambda (stackUsuarios stackPreguntas username idPregunta recompensa stack)
     (list (agregarRecompensaPregunta stackPreguntas idPregunta recompensa) (stackGetAnswers stack) (descontarRecompensaUsuario stackUsuarios username recompensa) (list))
+    )
+  )
+
+
+;descripción: Permite saber si una pregunta se encuentra en una lista o no
+;dom: lista X entero
+;rec: booleano
+;tipo de recursión: natural
+(define estaPregunta?
+  (lambda (listaPreguntaUsuario idPregunta)
+    (if (null? listaPreguntaUsuario) ;Caso base alcanzado al llegar al final de la lista o si esta se encuentra vacia
+        #f ;No esta la pregunta
+        (if (equal? (car listaPreguntaUsuario) idPregunta)
+            #t ;la pregunta se encuentra en la lista de preguntas del usuario
+            (estaPregunta? (cdr listaPreguntaUsuario) idPregunta) ;Descomposicion recursiva, se pasa a revisar la siguiente pregunta
+            )
+        )
+    )
+  )
+
+
+;descripción: Permite saber si una pregunta es del usuario ingresado o no
+;dom: lista X string X entero
+;rec: booleano
+;tipo de recursión: natural
+(define isPreguntaOfUser?
+  (lambda (listaUsuarios username idPregunta)
+    (if (null? listaUsuarios);Caso base alcanzado al llegar al final de la lista o si la lista se encuentra vacia
+        #f ;El usuario no existe
+        (if (equal? (userGetUsername (car listaUsuarios)) username) ;Se encuentra el user ?
+            (if (equal? (estaPregunta? (userGetQuestions (car listaUsuarios)) idPregunta) #t) ;En caso de haber encontrado al user se buscara si la pregunta se encuentra hecha por el
+                #t ;La pregunta fue hecha por el usuario ingresado
+                #f ;La pregunta no fue hecha por el usuario ingresado
+            )
+            (isPreguntaOfUser? (cdr listaUsuarios) username idPregunta) ;Descomposicion recursiva, se pasara a revisar al siguiente usuario
+            )
+        )
+    )
+  )
+
+
+;descripción: Permite saber si un  id de respuesta apunta al id de pregunta ingresado
+;dom: lista X entero X entero
+;rec: booleano
+;tipo de recursión: natural
+(define respuestaApuntaAPregunta?
+  (lambda (listaRespuestas idPregunta idRespuesta)
+    (if (null? listaRespuestas) ;Caso base alcanzado a llegar al final de la lista o si esta se encuentra vacia
+        #f ;No esta la respuesta buscada
+        (if (equal? (answerGetId (car listaRespuestas)) idRespuesta) ;Si se encuentra la respuesta buscada
+            (if (equal? (answerGetIdPregunta (car listaRespuestas)) idPregunta);Si una vez encontrada la respuesta buscada, se revisa el id de pregunta al que responde
+                #t ;si, el idRespuesta ingresado responde al idPregunta ingresado
+                #f ;La respuesta no responde al idPregunta ingresado
+                )
+            (respuestaApuntaAPregunta? (cdr listaRespuestas) idPregunta idRespuesta) ;Descomposicion recursiva, se pasara a revisar la siguiente respuesta
+            )
+        )
+    )
+  )
+    
+;descripción: Funcion que cambia el estado a cerrado y fija en cero la recompensa de la pregunta
+;dom: lista X entero
+;rec: lista
+(define cerrarPreguntaYEliminarRecompensa
+  (lambda (stackPreguntas idPregunta)
+    (map (lambda (pregunta)
+       (if (equal? (QuestionGetId pregunta) idPregunta) ;Se verifica si es la pregunta a la que se le quiere agregar la recompensa
+           (list (QuestionGetPregunta pregunta) (QuestionGetId pregunta)(QuestionGetUser pregunta) (QuestionGetDate pregunta) (QuestionGetLabels pregunta) "cerrada" 0 (QuestionGetVotes pregunta)) ;Se cierra y descuenta la recompensa
+           pregunta)) ;Si no lo es se mantiene el stack y se verifica la siguiente posicion
+     stackPreguntas)
+    )
+  )
+
+;descripción: Funcion que cambia el estado de una respuesta a aceptada y fija en cero la recompensa
+;dom: lista X entero
+;rec: lista
+(define marcarRespuestaAceptada
+  (lambda (stackRespuestas idRespuesta)
+    (map (lambda (respuesta)
+       (if (equal? (answerGetId respuesta) idRespuesta) ;Se verifica si es la respuesta a la que se le quiere agregar la recompensa
+           (list (answerGetRespuesta respuesta) (answerGetIdPregunta respuesta) (answerGetId respuesta) (answerGetUser respuesta) (answerGetDate respuesta) (answerGetLabels respuesta) "aceptada" (answerGetVotes respuesta)) ;Se cierra la respuesta
+           respuesta)) ;Si no lo es se mantiene el stack y se verifica la siguiente posicion
+     stackRespuestas)
+    )
+  )
+
+;descripción: Funcion que le agrega 2 puntos de reputacion al usuario que acepta la pregunta
+;dom: lista X string
+;rec: lista
+(define agregarReputacionUsuarioAceptante
+  (lambda (stackUsuarios username)
+    (map (lambda (usuario)
+       (if (equal? (userGetUsername usuario) username) ;Se verifica si es el usuario al que se le quiere agregar la reputacion
+           (list (userGetUsername usuario) (userGetPassword usuario) (userGetQuestions usuario) (+ (userGetReputation usuario) 2)) ;Se le agrega la reputacion
+           usuario)) ;Si no lo es se mantiene el stack y se verifica la siguiente posicion
+     stackUsuarios)
+    )
+  )
+
+;descripción: Funcion que retorna el usuario que hizo cierta respuesta
+;dom: lista X string
+;rec: string
+(define buscarUserIdRespuesta
+  (lambda (stackRespuestas idRespuesta)
+    (if (null? stackRespuestas) ;Caso base alcanzado a llegar al final de la lista o si esta se encuentra vacia
+        #f ;No esta la respuesta buscada
+        (if (equal? (answerGetId (car stackRespuestas)) idRespuesta) ;Si se encuentra la respuesta buscada
+            (answerGetUser(car stackRespuestas));Si se encuentra la respuesta buscada retorna el username que hizo la respuesta
+            (buscarUserIdRespuesta (cdr stackRespuestas) idRespuesta) ;Descomposicion recursiva, se pasara a revisar la siguiente respuesta
+            )
+        )
+    )
+  )
+
+;descripción: Funcion que retorna la recompensa del id de pregunta ingresado
+;dom: lista X string X entero
+;rec: entero
+(define buscarRecompensaPregunta
+  (lambda (stackPreguntas idPregunta)
+    (if (null? stackPreguntas) ;Caso base alcanzado a llegar al final de la lista o si esta se encuentra vacia
+        #f ;No esta la pregunta buscada
+        (if (equal? (QuestionGetId (car stackPreguntas)) idPregunta) ;Si se encuentra la respuesta buscada
+            (QuestionGetRecompensa (car stackPreguntas));Si se encuentra la pregunta buscada retorna su recompensa
+            (buscarRecompensaPregunta (cdr stackPreguntas) idPregunta) ;Descomposicion recursiva, se pasara a revisar la siguiente pregunta
+            )
+        )
+    )
+  )
+
+;descripción: Funcion que le agrega la recompensa por una pregunta a un usuario por responder bien una pregunta
+;dom: lista X string X entero
+;rec: lista
+(define otorgarRecompensaUsuarioAceptado
+  (lambda (stackUsuarios username recompensa)
+    (map (lambda (usuario)
+           (if (equal? (userGetUsername usuario) username) ;Se verifica si es el usuario al que se le quiere agregar la reputacion
+               (list (userGetUsername usuario) (userGetPassword usuario) (userGetQuestions usuario) (+ (userGetReputation usuario) recompensa)) ;Se le agrega la reputacion
+               usuario)) ;Si no lo es se mantiene el stack y se verifica la siguiente posicion
+         stackUsuarios)
+    )
+  )
+  
+
+;descripción: Funcion que retorna un Stack actualizado, distribuyendo reputacion segun corresponde y cerrando la pregunta aceptada
+;dom: lista X lista X lista X string X entero X entero
+;rec: lista
+(define distribuirReputacionYCerrarPregunta
+  (lambda (stackUsuarios stackPreguntas stackRespuestas username idPregunta idRespuesta)
+    (list (cerrarPreguntaYEliminarRecompensa stackPreguntas idPregunta) (marcarRespuestaAceptada stackRespuestas idRespuesta) (otorgarRecompensaUsuarioAceptado (agregarReputacionUsuarioAceptante stackUsuarios username) (buscarUserIdRespuesta stackRespuestas idRespuesta) (buscarRecompensaPregunta stackPreguntas idPregunta)) (list))
     )
   )

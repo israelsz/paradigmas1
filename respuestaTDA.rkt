@@ -22,6 +22,82 @@
     )
   )
 
+;Selectores
+
+;descripción: Funcion que retorna la respuesta de una lista respuesta
+;dom: lista
+;rec: string
+(define answerGetRespuesta
+  (lambda (respuesta)
+    (list-ref respuesta 0)
+    )
+  )
+
+;descripción: Funcion que retorna el id de la pregunta a la que responde la pregunta
+;dom: lista
+;rec: entero
+(define answerGetIdPregunta
+  (lambda (respuesta)
+    (list-ref respuesta 1)
+    )
+  )
+
+;descripción: Funcion que retorna el id de una respuesta
+;dom: lista
+;rec: entero
+(define answerGetId
+  (lambda (respuesta)
+    (list-ref respuesta 2)
+    )
+  )
+
+;descripción: Funcion que retorna el autor de una respuesta
+;dom: lista
+;rec: string
+(define answerGetUser
+  (lambda (respuesta)
+    (list-ref respuesta 3)
+    )
+  )
+
+;descripción: Funcion que retorna la fecha de una respuesta
+;dom: lista
+;rec: date
+(define answerGetDate
+  (lambda (respuesta)
+    (list-ref respuesta 4)
+    )
+  )
+
+;descripción: Funcion que retorna las etiquetas de una respuesta
+;dom: lista
+;rec: lista
+(define answerGetLabels
+  (lambda (respuesta)
+    (list-ref respuesta 5)
+    )
+  )
+
+;descripción: Funcion que retorna el estado de una respuesta
+;dom: lista
+;rec: string
+(define answerGetStatus
+  (lambda (respuesta)
+    (list-ref respuesta 6)
+    )
+  )
+
+;descripción: Funcion que retorna los votos totales de una respuesta
+;dom: lista
+;rec: string
+(define answerGetVotes
+  (lambda (respuesta)
+    (list-ref respuesta 7)
+    )
+  )
+
+;Otras funciones
+
 ;descripción: Permite crear un id para una respuesta
 ;dom: lista
 ;rec: entero

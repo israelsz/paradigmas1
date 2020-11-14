@@ -87,7 +87,7 @@
           ;En primer lugar se verifica que el usuario se encuentre logueado
           (if (equal? (isUserLoggedIn? (stackGetActiveUsers stack)) #f)
               stack ;si no esta loggeado, se retorna el stack sin cambios
-              ;En caso de estar loggeado, registra la pregunta
+              ;En caso de estar loggeado, registra la pregunta, retornando un stack con la pregunta
               (list (stackGetQuestions stack) (append (stackGetAnswers stack) (list(crearRespuesta respuesta idPreguntaQueResponde (stackGetLoggedUser stack) fecha labels (stackGetAnswers stack)))) (stackGetUsers stack) (list))
               )
           )
@@ -95,3 +95,41 @@
       )
     )
   )
+
+;descripción: Permite a un usuario logueado aceptar una respuesta a una de sus preguntas
+;dom: stack X entero X entero
+;rec: stack
+(define accept
+  (lambda (stack)
+    (lambda (idPregunta)
+      (lambda (idRespuesta)
+        ;En primer lugar se verifica que el usuario se encuentre logueado
+        (if (equal? (isUserLoggedIn? (stackGetActiveUsers stack)) #f)
+            stack ;si no esta loggeado, se retorna el stack sin cambios
+            ;En caso de estar loggeado se revisara que el id de pregunta ingresado corresponda a una pregunta hecha por el usuario loggeado.
+            (if (equal? (isPreguntaOfUser? (stackGetUsers stack) (stackGetLoggedUser stack) idPregunta) #f)
+                stack ;si la pregunta no fue hecha por el usuario ingresado, retorna el stack sin cambios
+                ;En caso que la pregunta si sea una pregunta del usuario ingresado, se verificara si la respuesta que se quiere recompensar, sea una respuesta a la pregunta seleccionada
+                (if (equal? (respuestaApuntaAPregunta? (stackGetQuestions stack) idPregunta idRespuesta) #f)
+                    stack ;el id respuesta ingresado no apunta a la respuesta que se quiere aceptar, devuelve el stack sin cambios
+                    ;En caso que el id de la respuesta si apunte al id de la pregunta ingresada, se efectuara la actualizacion de puntaje correspondiente
+                    (distribuirReputacionYCerrarPregunta (stackGetUsers stack) (stackGetQuestions stack) (stackGetAnswers stack) (stackGetLoggedUser stack) idPregunta idRespuesta)
+                    )
+                )
+            )
+        )
+      )
+    )
+  )
+            
+
+
+
+
+
+
+
+
+
+
+            
