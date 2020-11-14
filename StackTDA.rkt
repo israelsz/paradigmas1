@@ -2,6 +2,7 @@
 (require "UsuariosTDA.rkt")
 (require "preguntaTDA.rkt")
 (require "respuestaTDA.rkt")
+(require "fechaTDA.rkt")
 (provide (all-defined-out))
 
 ;Implementacion del TDA stack
@@ -336,3 +337,109 @@
     (list (cerrarPreguntaYEliminarRecompensa stackPreguntas idPregunta) (marcarRespuestaAceptada stackRespuestas idRespuesta) (otorgarRecompensaUsuarioAceptado (agregarReputacionUsuarioAceptante stackUsuarios username) (buscarUserIdRespuesta stackRespuestas idRespuesta) (buscarRecompensaPregunta stackPreguntas idPregunta)) (list))
     )
   )
+
+
+;descripción: Funcion que transforma una lista de respuesta a una lista de strings
+;dom: lista
+;rec: lista
+(define crearStringRespuestaAPregunta
+  (lambda (respuestasAPregunta)
+    (map (lambda (respuesta)
+           (string-append "\n        Respuesta:" "  Id: " (number->string (answerGetId respuesta))
+                          "  Fecha de respuesta: " (number->string(getDay(answerGetDate respuesta))) "/" (number->string(getMonth(answerGetDate respuesta))) "/" (number->string(getYear(answerGetDate respuesta))) 
+                          "  Votos: " (number->string(answerGetVotes respuesta))
+                          "  Estado: " (answerGetStatus respuesta) "\n"
+                          "         " (answerGetRespuesta respuesta) "\n"
+                          "         Etiquetas: " (string-join (answerGetLabels respuesta)" ") "   Autor: " (answerGetUser respuesta) "\n" 
+                          "\n"))
+     respuestasAPregunta)
+    )
+  )
+
+
+;descripción: Funcion que genera una lista compuesta de strings la cual contiene todas las preguntas con sus respectivas respuestas, sera usada por stack->string.
+;dom: lista X stack
+;rec: lista
+(define preguntas->string
+  (lambda (stackPreguntas stack)
+    (map (lambda (pregunta)
+           (string-append "Pregunta:" "  Id: " (number->string (QuestionGetId pregunta))
+                          "   Fecha de publicacion: " (number->string(getDay(QuestionGetDate pregunta))) "/" (number->string(getMonth(QuestionGetDate pregunta))) "/" (number->string(getYear(QuestionGetDate pregunta)))
+                          "   Recompensa: " (number->string(QuestionGetRecompensa pregunta))
+                          "   Votos: " (number->string(QuestionGetVotes pregunta))
+                          "   Estado: " (QuestionGetStatus pregunta) "\n"
+                          "    " (QuestionGetPregunta pregunta) "\n"
+                          "    Etiquetas: " (string-join (QuestionGetLabels pregunta)" ") "   Autor: " (QuestionGetUser pregunta) "\n" 
+                          (string-join (crearStringRespuestaAPregunta (getAnswersToAQuestion stack (QuestionGetId pregunta))) " ") ;Transforma las respuesta a un string y los agrega
+                          "\n"))
+                          
+     stackPreguntas)
+    )
+  )
+
+;descripción: Funcion que transforma una lista de enteros a una lista de strings, sera usada para transformar a string las preguntas hechas por un usuario
+;dom: lista
+;rec: lista
+(define listaPreguntas->string
+  (lambda (listaPreguntasUsuario)
+    (map (lambda (idPregunta)
+           (number->string idPregunta))
+         listaPreguntasUsuario)
+    )
+  )
+           
+;descripción: Funcion que transforma una lista de tda usuario a una lista de strings que contiene su informacion
+;dom: lista
+;rec: lista
+(define usuarios->string
+  (lambda (stackUsuarios)
+    (map (lambda (usuario)
+           (string-append "    Usuario: \n"
+                          "        Username: " (userGetUsername usuario) "  Reputación: " (number->string(userGetReputation usuario)) " Preguntas realizadas(Id): " (string-join (listaPreguntas->string (userGetQuestions usuario)) " ") 
+                          "\n"))
+     stackUsuarios)
+    )
+  )
+
+;descripción: Funcion que retorna la lista de todas las respuestas a una determinada pregunta
+;dom: stack x entero
+;rec: lista
+(define getAnswersToAQuestion
+  (lambda (stack idPregunta)
+    (filter (lambda (e)
+                (equal? (answerGetIdPregunta e) idPregunta))
+              (stackGetAnswers stack))
+    )
+  )
+        
+;descripción: Funcion que retorna la pregunta a la que le corresponde su id, sera implementada para ser usada con la funcion vote
+;dom: stack X entero
+;rec: lista
+(define getQuestion
+  (lambda (stack)
+    (lambda (idPregunta)
+      (filter (lambda (e)
+                (equal? (QuestionGetId e) idPregunta))
+              (stackGetQuestions stack))
+      )
+    )
+  )
+
+;descripción: Funcion que retorna la respuesta a la que le corresponde su id, sera implementada para ser usada con la funcion vote
+;dom: enterp X entero X stack
+;rec: lista
+(define getAnswer
+  (lambda (idPregunta)
+    (lambda (stack)
+      (lambda (idRespuesta)
+        (filter (lambda (e)
+                (and (equal? (answerGetIdPregunta e) idPregunta) (equal? (answerGetId e) idRespuesta)))
+              (stackGetAnswers stack))
+        )
+      )
+    )
+  )
+
+
+
+

@@ -16,7 +16,7 @@
 (define crearRespuesta
   (lambda (respuesta idPreguntaQueResponde autor date labels stackRespuestas)
     (if (and (string? respuesta) (list? labels) (integer? idPreguntaQueResponde))
-        (list respuesta idPreguntaQueResponde (crearIdRespuesta stackRespuestas) autor date labels "abierta" 0)
+        (list respuesta idPreguntaQueResponde (crearIdRespuesta stackRespuestas) autor date labels "pendiente" 0)
         (raise "Verifique que la respuesta sea un string y el id un entero")
         )
     )

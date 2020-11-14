@@ -110,7 +110,7 @@
             (if (equal? (isPreguntaOfUser? (stackGetUsers stack) (stackGetLoggedUser stack) idPregunta) #f)
                 stack ;si la pregunta no fue hecha por el usuario ingresado, retorna el stack sin cambios
                 ;En caso que la pregunta si sea una pregunta del usuario ingresado, se verificara si la respuesta que se quiere recompensar, sea una respuesta a la pregunta seleccionada
-                (if (equal? (respuestaApuntaAPregunta? (stackGetQuestions stack) idPregunta idRespuesta) #f)
+                (if (equal? (respuestaApuntaAPregunta? (stackGetAnswers stack) idPregunta idRespuesta) #f)
                     stack ;el id respuesta ingresado no apunta a la respuesta que se quiere aceptar, devuelve el stack sin cambios
                     ;En caso que el id de la respuesta si apunte al id de la pregunta ingresada, se efectuara la actualizacion de puntaje correspondiente
                     (distribuirReputacionYCerrarPregunta (stackGetUsers stack) (stackGetQuestions stack) (stackGetAnswers stack) (stackGetLoggedUser stack) idPregunta idRespuesta)
@@ -121,9 +121,33 @@
       )
     )
   )
-            
 
+;descripción: Funcion que recibe el stack y genera un string de manera de poder visualizar el stack de manera comprensible
+;dom: stack
+;rec: string
+(define stack->string
+  (lambda (stack)
+    ;En primer lugar se verifica que el usuario se encuentre logueado, o sea, esta funcion fue invocada a traves del login
+    (if (equal? (isUserLoggedIn? (stackGetActiveUsers stack)) #f)
+        ;Si no fue invocada a traves del login, imprime todo el stack
+        (string-append (string-join (preguntas->string (stackGetQuestions stack) stack) "") "Usuarios Registrados en el Foro: \n" (string-join (usuarios->string (stackGetUsers stack)) ""))
+        ;Si fue invocada a traves del login, imprime todo el stack, aparte de la informacion del usuario conectado
+        (string-append (string-join (preguntas->string (stackGetQuestions stack) stack) "") "Usuarios Registrados en el Foro: \n" (string-join (usuarios->string (stackGetUsers stack)) "") "\n" "Usuarios Conectados: \n" (stackGetLoggedUser stack) "\n")
+        )
+    )
+  )
 
+(define vote
+  (lambda (stack)
+    (lambda (funcion)
+      (lambda(idPreguntaORespuesta)
+        (lambda(booleano)
+          (display "hola")
+          )
+        )
+      )
+    )
+  )
 
 
 

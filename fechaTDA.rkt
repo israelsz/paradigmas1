@@ -20,6 +20,32 @@
       null
   )
 )
+;Selectores
+(define getDay
+  (lambda (f)
+    (list-ref f 0)
+    )
+  )
+  
+
+;descripción: Función que retorna el mes en una fecha
+;dom: fecha
+;rec: entero
+(define getMonth
+  (lambda (f)
+    (list-ref f 1)
+    )
+  )
+
+;descripción: Función que retorna el año en una fecha
+;dom: fecha
+;rec: entero
+(define getYear
+  (lambda (f)
+    (list-ref f 2)
+    )
+  )
+
 
 ;Otras Funciones
 
