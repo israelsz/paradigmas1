@@ -137,17 +137,30 @@
     )
   )
 
+;descripción: Funcion que permite a un usuario votar por una pregunta o respuesta, el voto puede ser positivo o negativo, retorna un stack actualizado de acuerdo al tipo de voto
+;dom: stack X function X entero X booleano
+;rec: stack
 (define vote
   (lambda (stack)
     (lambda (funcion)
       (lambda(idPreguntaORespuesta)
         (lambda(booleano)
-          (display "hola")
+          (if (equal? booleano true);se restara o sumara un  voto ?
+              ;ejecutar sumar puntaje
+              (votoPositivo stack (car ((funcion idPreguntaORespuesta) stack)) idPreguntaORespuesta)
+              (if (equal? booleano false)
+                  ;ejecuta restar puntaje
+                  (votoNegativo stack (car ((funcion idPreguntaORespuesta) stack)) idPreguntaORespuesta)
+                  stack; no se ingreso ni true ni false, retorna el stack sin cambios
+                  )
+              )
           )
         )
       )
     )
   )
+
+  
 
 
 

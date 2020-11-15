@@ -95,6 +95,20 @@
     )
   )
 
+;Pertenencia
+
+;descripción: Funcion que determina si una lista es una pregunta o no
+;dom: lista
+;rec: booleano
+(define pregunta?
+  (lambda (question)
+    (if (string? (list-ref question 2))
+        #t
+        #f
+        )
+    )
+  )
+
 ;Otras funciones
 
 ;Esta funcion es usada por el constructor del tda para funcionar, pero tambien funciona independientemente

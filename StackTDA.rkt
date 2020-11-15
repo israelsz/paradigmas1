@@ -13,7 +13,6 @@
 ;(list preguntas respuestas usuarios nombreUsuarioActivo)
 
 
-
 ;Constructores
 
 ;descripción: Permite Crear un Stack vacio
@@ -22,10 +21,9 @@
 (define (crearStack)
   (list (list) (list) (list) (list))
   )
-;Pertenencia
+
 
 ;Selectores
-
 
 ;descripción: Funcion que retorna la lista con preguntas del stack, para ello se solicita el stack
 ;dom: list
@@ -288,6 +286,7 @@
 ;descripción: Funcion que retorna el usuario que hizo cierta respuesta
 ;dom: lista X string
 ;rec: string
+;tipo de recursion: natural
 (define buscarUserIdRespuesta
   (lambda (stackRespuestas idRespuesta)
     (if (null? stackRespuestas) ;Caso base alcanzado a llegar al final de la lista o si esta se encuentra vacia
@@ -413,11 +412,11 @@
   )
         
 ;descripción: Funcion que retorna la pregunta a la que le corresponde su id, sera implementada para ser usada con la funcion vote
-;dom: stack X entero
+;dom: entero X stack
 ;rec: lista
 (define getQuestion
-  (lambda (stack)
-    (lambda (idPregunta)
+  (lambda (idPregunta)
+    (lambda (stack)
       (filter (lambda (e)
                 (equal? (QuestionGetId e) idPregunta))
               (stackGetQuestions stack))
@@ -426,12 +425,12 @@
   )
 
 ;descripción: Funcion que retorna la respuesta a la que le corresponde su id, sera implementada para ser usada con la funcion vote
-;dom: enterp X entero X stack
+;dom: entero X entero X stack
 ;rec: lista
 (define getAnswer
   (lambda (idPregunta)
-    (lambda (stack)
-      (lambda (idRespuesta)
+    (lambda (idRespuesta)
+      (lambda (stack)
         (filter (lambda (e)
                 (and (equal? (answerGetIdPregunta e) idPregunta) (equal? (answerGetId e) idRespuesta)))
               (stackGetAnswers stack))
@@ -440,6 +439,137 @@
     )
   )
 
+;descripción: Funcion que retorna el usuario que hizo cierta pregunta
+;dom: lista X string
+;rec: string
+(define buscarUserIdPregunta
+  (lambda (stackPreguntas idPregunta)
+    (if (null? stackPreguntas) ;Caso base alcanzado a llegar al final de la lista o si esta se encuentra vacia
+        #f ;No esta la pregunta buscada
+        (if (equal? (QuestionGetId (car stackPreguntas)) idPregunta) ;Si se encuentra la respuesta buscada
+            (QuestionGetUser(car stackPreguntas));Si se encuentra la respuesta buscada retorna el username que hizo la pregunta
+            (buscarUserIdPregunta (cdr stackPreguntas) idPregunta) ;Descomposicion recursiva, se pasara a revisar la siguiente pregunta
+            )
+        )
+    )
+  )
+
+;descripcion: Funcion que suma 10 de reputacion al usuario por haber recibido un voto positivo en su pregunta/respuesta
+;dom: lista X lista(pregunta)
+;rec: lista
+(define votoPositivoUsuario
+  (lambda (stackUsuarios usuarioBuscado)
+    (map (lambda (usuario)
+       (if (equal? (userGetUsername usuario) usuarioBuscado) ;Se verifica si es el usuario a cual se le quiere dar reputacion
+           (list (userGetUsername usuario) (userGetPassword usuario) (userGetQuestions usuario) (+ (userGetReputation usuario) 10));se le da 10 de reputacion
+           usuario)) ;Si no lo es se mantiene y se verifica la siguiente posicion
+     stackUsuarios)
+    )
+  )
+
+;descripcion: Funcion que suma un voto a la pregunta ingresada
+;dom: lista X lista(pregunta)
+;rec: lista
+(define votoPositivoPregunta
+  (lambda (stackPreguntas preguntaORespuesta)
+    (map (lambda (pregunta)
+       (if (equal? preguntaORespuesta pregunta) ;Se verifica si es la pregunta a modificar
+           (list (QuestionGetPregunta pregunta) (QuestionGetId pregunta)(QuestionGetUser pregunta) (QuestionGetDate pregunta) (QuestionGetLabels pregunta) (QuestionGetStatus pregunta) (QuestionGetRecompensa pregunta) (+ (QuestionGetVotes pregunta) 1)) ;Se le agrega el voto
+           pregunta)) ;Si no lo es se mantiene y se verifica la siguiente posicion
+     stackPreguntas)
+    )
+  )
+
+;descripcion: Funcion que suma un voto a la respuesta ingresada
+;dom: lista X lista(respuesta)
+;rec: lista
+(define votoPositivoRespuesta
+  (lambda (stackRespuestas preguntaORespuesta)
+    (map (lambda (respuesta)
+       (if (equal? preguntaORespuesta respuesta) ;Se verifica si es la respuesta a modificar
+           (list (answerGetRespuesta respuesta) (answerGetIdPregunta respuesta) (answerGetId respuesta) (answerGetUser respuesta) (answerGetDate respuesta) (answerGetLabels respuesta) (answerGetStatus respuesta) (+(answerGetVotes respuesta) 1)) ;se agrega el voto 
+           respuesta)) ;Si no lo es se mantiene y se verifica la siguiente posicion
+     stackRespuestas)
+    )
+  )
+
+;descripcion: Funcion que resta 2 de reputacion al usuario por haber recibido un voto negativo en su pregunta/Respuesta
+;dom: lista X string
+;rec: lista
+(define votoNegativoAutorPregunta
+  (lambda (stackUsuarios usuarioBuscado)
+    (map (lambda (usuario)
+       (if (equal? (userGetUsername usuario) usuarioBuscado) ;Se verifica si es el usuario a cual se le quiere dar reputacion
+           (list (userGetUsername usuario) (userGetPassword usuario) (userGetQuestions usuario) (- (userGetReputation usuario) 2));se le resta 2 de reputacion
+           usuario)) ;Si no lo es se mantiene y se verifica la siguiente posicion
+     stackUsuarios)
+    )
+  )
+
+;descripcion: Funcion que resta 1 de reputacion al usuario por haber votado negativamente una respuesta
+;dom: lista X string
+;rec: lista
+(define votoNegativoAutorVotante
+  (lambda (stackUsuarios usuarioBuscado)
+    (map (lambda (usuario)
+       (if (equal? (userGetUsername usuario) usuarioBuscado) ;Se verifica si es el usuario a cual se le quiere dar reputacion
+           (list (userGetUsername usuario) (userGetPassword usuario) (userGetQuestions usuario) (- (userGetReputation usuario) 1));se le resta 1 de reputacion
+           usuario)) ;Si no lo es se mantiene y se verifica la siguiente posicion
+     stackUsuarios)
+    )
+  )
+
+;descripcion: Funcion que resta un voto a la pregunta ingresada
+;dom: lista X lista(pregunta)
+;rec: lista
+(define votoNegativoPregunta
+  (lambda (stackPreguntas preguntaORespuesta)
+    (map (lambda (pregunta)
+       (if (equal? preguntaORespuesta pregunta) ;Se verifica si es la pregunta a modificar
+           (list (QuestionGetPregunta pregunta) (QuestionGetId pregunta)(QuestionGetUser pregunta) (QuestionGetDate pregunta) (QuestionGetLabels pregunta) (QuestionGetStatus pregunta) (QuestionGetRecompensa pregunta) (- (QuestionGetVotes pregunta) 1)) ;Se le resta el voto
+           pregunta)) ;Si no lo es se mantiene y se verifica la siguiente posicion
+     stackPreguntas)
+    )
+  )
+
+;descripcion: Funcion que resta un voto a la respuesta ingresada
+;dom: lista X lista(respuesta)
+;rec: lista
+(define votoNegativoRespuesta
+  (lambda (stackRespuestas preguntaORespuesta)
+    (map (lambda (respuesta)
+       (if (equal? preguntaORespuesta respuesta) ;Se verifica si es la respuesta a modificar
+           (list (answerGetRespuesta respuesta) (answerGetIdPregunta respuesta) (answerGetId respuesta) (answerGetUser respuesta) (answerGetDate respuesta) (answerGetLabels respuesta) (answerGetStatus respuesta) (- (answerGetVotes respuesta) 1)) ;se resta el voto 
+           respuesta)) ;Si no lo es se mantiene y se verifica la siguiente posicion
+     stackRespuestas)
+    )
+  )
+
+;descripcion: Funcion que retorna un stack actualizado en caso de una pregunta/respuesta haberse votado positivamente
+;dom: stack X lista X entero X entero
+;rec: stack
+(define votoPositivo
+  (lambda (stack preguntaORespuesta idPreguntaRespuesta)
+    (if (pregunta? preguntaORespuesta)
+        ;Ejecutar votar positivo pregunta si se ingreso getQuestion
+        (list (votoPositivoPregunta (stackGetQuestions stack) preguntaORespuesta) (stackGetAnswers stack) (votoPositivoUsuario (stackGetUsers stack) (buscarUserIdPregunta (stackGetQuestions stack) idPreguntaRespuesta)) (list))
+        ;Ejecutar votar positivo respuesta si se ingreso getAnswer
+        (list (stackGetQuestions stack) (votoPositivoRespuesta (stackGetAnswers stack) preguntaORespuesta) (votoPositivoUsuario (stackGetUsers stack) (buscarUserIdRespuesta (stackGetAnswers stack) idPreguntaRespuesta)) (list))
+        )
+    )
+  )
 
 
-
+;descripcion: Funcion que retorna un stack actualizado en caso de una pregunta/respuesta haberse votado negativa
+;dom: stack X lista X entero X entero
+;rec: stack
+(define votoNegativo
+  (lambda (stack preguntaORespuesta idPreguntaRespuesta)
+    (if (pregunta? preguntaORespuesta)
+        ;Ejecutar votar negativo pregunta si se ingreso getQuestion
+        (list (votoNegativoPregunta (stackGetQuestions stack) preguntaORespuesta) (stackGetAnswers stack) (votoNegativoAutorPregunta (stackGetUsers stack) (buscarUserIdPregunta (stackGetQuestions stack) idPreguntaRespuesta)) (list))
+        ;Ejecutar votar negativo respuesta si se ingreso getAnswer
+        (list (stackGetQuestions stack) (votoNegativoRespuesta (stackGetAnswers stack) preguntaORespuesta) (votoNegativoAutorVotante (votoNegativoAutorPregunta (stackGetUsers stack) (buscarUserIdRespuesta (stackGetAnswers stack) idPreguntaRespuesta)) (stackGetLoggedUser stack)) (list))
+        )
+    )
+  )

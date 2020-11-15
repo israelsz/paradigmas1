@@ -96,6 +96,7 @@
     )
   )
 
+
 ;Otras funciones
 
 ;descripción: Permite crear un id para una respuesta
