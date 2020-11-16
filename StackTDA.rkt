@@ -6,7 +6,7 @@
 (provide (all-defined-out))
 
 ;Implementacion del TDA stack
-;El tda Stack es la base para este programa
+;El tda Stack es la base para este programa, por ende, tambien requerira funciones de los otros tda.
 
 ;Representacion
 ;(list X list X list X list)
@@ -76,6 +76,8 @@
 
 ;Otras Operaciones
 
+;Las siguientes funciones operan sobre el stackTDA:
+
 ;descripción: Permite saber si un usuario ya se encuentra dentro del stack de usuarios.
 ;dom: lista X string
 ;rec: booleano
@@ -126,6 +128,7 @@
 ;descripción: Permite saber si un usuario puede dar una determinada recompensa o no
 ;dom: lista X string X entero
 ;rec: booleano
+;tipo de recursión: natural
 (define puedeDarReputacion?
   (lambda (stackUsuarios username recompensa)
     (if (equal? (userGetUsername(car stackUsuarios)) username) ;Si encontramos al usuario que quiere dar reputacion
@@ -139,7 +142,7 @@
   )
 
 ;descripción: Funcion que agrega un id de pregunta a un usuario, retorna una lista actualizada
-;dom: lista x lista x stack
+;dom: lista x string x stack
 ;rec: lista
 (define addQuestionToUser
   (lambda (stackUsuarios username stack)
@@ -153,7 +156,7 @@
 
 
 ;descripción: Funcion que descuenta una recompensa a un usuario, retorna el stack de usuarios actualizado
-;dom: lista X lista X string X entero X entero
+;dom: lista X string X entero
 ;rec: lista
 (define descontarRecompensaUsuario
   (lambda (stackUsuarios username recompensa)
@@ -166,7 +169,7 @@
   )
 
 ;descripción: Funcion que agrega una recompensa a la pregunta del id señalado retorna el stack de preguntas actualizado
-;dom: lista X lista X string X entero X entero
+;dom: lista X entero X entero
 ;rec: lista
 (define agregarRecompensaPregunta
   (lambda (stackPreguntas idPregunta recompensa)
@@ -179,7 +182,7 @@
   )
 
 ;descripción: Funcion que trapasa la determinada recompensa de un usuario a una pregunta, retorna un stack actualizado
-;dom: lista X lista X string X entero X entero
+;dom: lista X lista X string X entero X entero X stack
 ;rec: stack
 (define traspasarRecompensa
   (lambda (stackUsuarios stackPreguntas username idPregunta recompensa stack)
@@ -300,7 +303,7 @@
   )
 
 ;descripción: Funcion que retorna la recompensa del id de pregunta ingresado
-;dom: lista X string X entero
+;dom: lista X entero
 ;rec: entero
 (define buscarRecompensaPregunta
   (lambda (stackPreguntas idPregunta)
@@ -326,14 +329,26 @@
          stackUsuarios)
     )
   )
-  
+
+;descripción: Funcion que le agrega 15 de recompensa a un usuario por su funcion haber sido aceptada
+;dom: lista X string
+;rec: lista
+(define otorgarPuntosVotoAceptado
+  (lambda (stackUsuarios username)
+    (map (lambda (usuario)
+           (if (equal? (userGetUsername usuario) username) ;Se verifica si es el usuario al que se le quiere agregar la reputacion
+               (list (userGetUsername usuario) (userGetPassword usuario) (userGetQuestions usuario) (+ (userGetReputation usuario) 15)) ;Se le agrega la reputacion por haber sido aceptada la votacion
+               usuario)) ;Si no lo es se mantiene el stack y se verifica la siguiente posicion
+         stackUsuarios)
+    )
+  )
 
 ;descripción: Funcion que retorna un Stack actualizado, distribuyendo reputacion segun corresponde y cerrando la pregunta aceptada
 ;dom: lista X lista X lista X string X entero X entero
 ;rec: lista
 (define distribuirReputacionYCerrarPregunta
   (lambda (stackUsuarios stackPreguntas stackRespuestas username idPregunta idRespuesta)
-    (list (cerrarPreguntaYEliminarRecompensa stackPreguntas idPregunta) (marcarRespuestaAceptada stackRespuestas idRespuesta) (otorgarRecompensaUsuarioAceptado (agregarReputacionUsuarioAceptante stackUsuarios username) (buscarUserIdRespuesta stackRespuestas idRespuesta) (buscarRecompensaPregunta stackPreguntas idPregunta)) (list))
+    (list (cerrarPreguntaYEliminarRecompensa stackPreguntas idPregunta) (marcarRespuestaAceptada stackRespuestas idRespuesta) (otorgarPuntosVotoAceptado (otorgarRecompensaUsuarioAceptado (agregarReputacionUsuarioAceptante stackUsuarios username) (buscarUserIdRespuesta stackRespuestas idRespuesta) (buscarRecompensaPregunta stackPreguntas idPregunta)) (buscarUserIdRespuesta stackRespuestas idRespuesta)) (list))
     )
   )
 
@@ -440,7 +455,7 @@
   )
 
 ;descripción: Funcion que retorna el usuario que hizo cierta pregunta
-;dom: lista X string
+;dom: lista X entero
 ;rec: string
 (define buscarUserIdPregunta
   (lambda (stackPreguntas idPregunta)
@@ -546,7 +561,7 @@
   )
 
 ;descripcion: Funcion que retorna un stack actualizado en caso de una pregunta/respuesta haberse votado positivamente
-;dom: stack X lista X entero X entero
+;dom: stack X lista X entero
 ;rec: stack
 (define votoPositivo
   (lambda (stack preguntaORespuesta idPreguntaRespuesta)
@@ -561,7 +576,7 @@
 
 
 ;descripcion: Funcion que retorna un stack actualizado en caso de una pregunta/respuesta haberse votado negativa
-;dom: stack X lista X entero X entero
+;dom: stack X lista X entero
 ;rec: stack
 (define votoNegativo
   (lambda (stack preguntaORespuesta idPreguntaRespuesta)
