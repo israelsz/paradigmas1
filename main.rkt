@@ -317,3 +317,61 @@
 ;Para visualizar de mejor manera el cambio en los votos y reputacion, se puede hacer uso de stack-> string
 
 ;(display (stack->string stackOverflow))
+
+
+
+
+
+;Resumen de ejemplos anteriores:
+
+;Crear Stack:
+
+;(define stackOverflow(crearStack))
+
+;Ejemplos register:
+
+;(define stackOverflow(register stackOverflow "pedro" "123"))
+;(define stackOverflow(register stackOverflow "israel" "qwerty"))
+;(define stackOverflow(register stackOverflow "maria" "456"))
+
+;Ejemplos login:
+
+;(login stackOverflow "israel" "qwerty" stack->string)
+;(login stackOverflow "maria" "456" stack->string)
+;(login stackOverflow "pedro" "123" stack->string)
+
+;Ejemplos ask:
+
+;(define stackOverflow(((login stackOverflow "israel" "qwerty" ask)(date 16 11 2020))"Hola ¿como puedo hacer hola mundo?" "python"))
+;(define stackOverflow(((login stackOverflow "pedro" "123" ask)(date 17 11 2020))"Soy nuevo, como puedo usar el foro ?" "ayuda" "usuario nuevo"))
+;(define stackOverflow(((login stackOverflow "maria" "456" ask)(date 17 11 2020))"Como puedo hacer iteraciones en scheme ?" "paradigma funcional" "scheme"))
+
+;Ejemplos reward:
+
+;(define stackOverflow(((login stackOverflow "pedro" "123" reward)2)300))
+;(define stackOverflow(((login stackOverflow "israel" "qwerty" reward)3)50))
+;(define stackOverflow(((login stackOverflow "israel" "qwerty" reward)1)100))
+
+;Ejemplos answer:
+
+;(define stackOverflow((((login stackOverflow "israel" "qwerty" answer)(date 18 11 2020))2) "Hola, te recomiendo leer el informe y los ejemplos del archivo main.rtk" "duda" "foro"))
+;(define stackOverflow((((login stackOverflow "pedro" "123" answer)(date 18 11 2020))3) "Hola, hay que usar recursión a fin de iterar sobre algo en scheme" "recursion" "scheme"))
+;(define stackOverflow((((login stackOverflow "maria" "456" answer)(date 19 11 2020))1) "Puedes hacer uso de la funcion print en python para ello" "duda" "python"))
+
+;Ejemplos accept:
+
+;(define stackOverflow(((login stackOverflow "maria" "456" accept)3)2))
+;(define stackOverflow(((login stackOverflow "israel" "qwerty" accept)1)3))
+;(define stackOverflow(((login stackOverflow "pedro" "123" accept)2)1))
+
+;Ejemplos stack->string:
+
+;(stack->string stackOverflow)
+;(display (stack->string stackOverflow))
+;(login stackOverflow "israel" "qwerty" stack->string)
+
+;Ejemplos vote:
+;(define stackOverflow((((login stackOverflow "israel" "qwerty" vote)getQuestion)2)false))
+;(define stackOverflow((((login stackOverflow "pedro" "123" vote)(getAnswer 1))3)true))
+;(define stackOverflow ((((login stackOverflow "maria" "456" vote)(getAnswer 2))1)false))
+;(define stackOverflow((((login stackOverflow "pedro" "123" vote)getQuestion)3)true))
