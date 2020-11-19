@@ -1,8 +1,8 @@
 #lang scheme
-(require "UsuariosTDA.rkt")
-(require "preguntaTDA.rkt")
-(require "respuestaTDA.rkt")
-(require "fechaTDA.rkt")
+(require "UsuariosTDA_20110122_AriasPanez.rkt")
+(require "preguntaTDA_20110122_AriasPanez.rkt")
+(require "respuestaTDA_20110122_AriasPanez.rkt")
+(require "fechaTDA_20110122_AriasPanez.rkt")
 (provide (all-defined-out))
 
 ;Implementacion del TDA stack
